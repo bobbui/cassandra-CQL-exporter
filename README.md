@@ -2,18 +2,19 @@
 A utility to export whole [Apache Cassandra](http://cassandra.apache.org/) keyspace/table structure and data to Cassandra Query Language (CQL) scripts. CQL scripts is a lightweight,simple way to restore and backup.
 
 Features:
-1. Simple and configurable, see usage for detail.
-2. Fast and highly scalable: for my keyspace with 1,5 million record took ~3m to generated. Data is exported gradually, so memory usage is very low.
-3. Export process is tracked with detail information.
-4. CQL scripts is ready to import using [SOURCE command](http://docs.datastax.com/en/cql/3.3/cql/cql_reference/source_r.html).
-5. Tested with Cassandra > 2.1, 2.2, 3.0 and tick-tock releases.
-6. Require Java > 6., make sure Java is available in PATH variable.
+-  simple and configurable, see usage for detail.
+-  fast and highly scalable: for my keyspace with 1,5 million record took ~3m to generated. Data is exported gradually, so memory usage is very low.
+-  export process is tracked with detail information.
+-  CQL scripts is ready to import using [SOURCE command](http://docs.datastax.com/en/cql/3.3/cql/cql_reference/source_r.html).
+-  tested with Cassandra > 2.1, 2.2, 3.0 and tick-tock releases.
+-  require Java > 6., make sure Java is available in PATH variable.
 
 Generated script contains 2 component:
 ⋅⋅*DDL: include keyspace create statement, all tables, indexs, materialized views, function, aggregate function, user defined type.
 ⋅⋅*DML: insert statement for tables data.
 
 Be careful that script will be forward-compatible but not guarantee to be backward-compatible especially DDL statements. It's better that export and import using same Cassandra version.
+
 I'm using this on a daily basis. But anyways, use this at YOUR OWN RISK!
 
 TODO: optimized jar size.
