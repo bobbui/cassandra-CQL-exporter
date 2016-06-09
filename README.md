@@ -10,15 +10,14 @@ Features:
 -  require Java > 6., make sure Java is available in PATH variable.
 
 Generated script contains 2 component:
-⋅⋅*DDL: include keyspace create statement, all tables, indexs, materialized views, function, aggregate function, user defined type.
-⋅⋅*DML: insert statement for tables data.
+- DDL: include keyspace create statement, all tables, indexs, materialized views, function, aggregate function, user defined type.
+- DML: insert statement for tables data.
 
 Be careful that script will be forward-compatible but not guarantee to be backward-compatible especially DDL statements. It's better that export and import using same Cassandra version.
+I'm using this on a daily basis. But anyways, use this at **YOUR OWN RISK**!
 
-I'm using this on a daily basis. But anyways, use this at YOUR OWN RISK!
-
+## TODO
 TODO: optimized jar size.
-
 ## Usage
 ```
 usage: cql-export [--drop] [-f <file name>] [-fo] [-h <host>] [--help] [-k <keyspace>] [-l] [-m]
