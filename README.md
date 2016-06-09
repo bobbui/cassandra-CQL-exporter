@@ -14,6 +14,7 @@ Generated script contains 2 component:
 ⋅⋅*DML: insert statement for tables data.
 
 Be careful that script will be forward-compatible but not guarantee to be backward-compatible especially DDL statements. It's better that export and import using same Cassandra version.
+
 I'm using this on a daily basis. But anyways, use this at YOUR OWN RISK!
 
 TODO: optimized jar size.
