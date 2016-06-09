@@ -3,21 +3,18 @@ A utility to export whole [Apache Cassandra](http://cassandra.apache.org/) keysp
 
 Features:
 -  simple and configurable, see usage for detail.
--  fast and highly scalable: for my keyspace with 1,5 million record took ~3m to generated. Data is exported gradually, so memory usage is very low.
+-  fast and highly scalable: Data is exported gradually, so memory usage is very low, e.g: for my keyspace with 1,5 million record took ~3m to generated.
 -  export process is tracked with detail information.
 -  CQL scripts is ready to import using [SOURCE command](http://docs.datastax.com/en/cql/3.3/cql/cql_reference/source_r.html).
 -  tested with Cassandra > 2.1, 2.2, 3.0 and tick-tock releases.
 -  require Java > 6., make sure Java is available in PATH variable.
 
 Generated script contains 2 component:
-⋅⋅*DDL: include keyspace create statement, all tables, indexs, materialized views, function, aggregate function, user defined type.
-⋅⋅*DML: insert statement for tables data.
+- DDL: include keyspace CREATE statement, all tables, indexs, materialized views, function, aggregate function, user defined type.
+- DML: INSERT statement for tables data.
 
 Be careful that script will be forward-compatible but not guarantee to be backward-compatible especially DDL statements. It's better that export and import using same Cassandra version.
-
-I'm using this on a daily basis. But anyways, use this at YOUR OWN RISK!
-
-TODO: optimized jar size.
+I'm using this on a daily basis. But anyways, use this at **YOUR OWN RISK**!
 
 ## Usage
 ```
@@ -80,5 +77,7 @@ $cql-export -h lcoalhost-po 9043 -k cycling
 ```
 $cql-export -h lcoalhost-po 9043  -k keyspace_name -noddl
 ```
+## TODO
+TODO: optimized jar size.
 ##License
  Apache 2.0 License
