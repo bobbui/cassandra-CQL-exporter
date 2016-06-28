@@ -7,7 +7,7 @@
  * http://www.apache.org/licenses/LICENSE-2.0
  */
 
-package thangbui.net.cql_exporter;
+package net.thangbui.cql_exporter;
 
 import com.google.common.io.BaseEncoding;
 
