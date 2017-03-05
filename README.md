@@ -1,5 +1,5 @@
 ## Summary
-A utility to export whole [Apache Cassandra](http://cassandra.apache.org/) keyspace/table structure and data to Cassandra Query Language (CQL) scripts. CQL scripts is a lightweight,simple way to restore and backup.
+Alternative utility to **nodetool snapshot**  to export whole [Apache Cassandra](http://cassandra.apache.org/) keyspace/table structure and data to Cassandra Query Language (CQL) scripts. CQL scripts is a lightweight,simple way to restore and backupAn .
 
 Features:
 -  simple and configurable, see usage for detail.
@@ -8,6 +8,11 @@ Features:
 -  CQL scripts is ready to import using [SOURCE command](http://docs.datastax.com/en/cql/3.3/cql/cql_reference/source_r.html).
 -  tested with Cassandra > 2.1, 2.2, 3.0 and tick-tock releases.
 -  require Java > 6., make sure Java is available in PATH variable.
+
+Overcome nodetool snapshot caveats:
+-  snapshot can only be restored when table schema is there --> **cassandra-CQL-exporter** support both DDL and DML backup.
+-  snapshot can only run on a node, multiple node require parallel ssh to be setup -->  **cassandra-CQL-exporter** dont need to care there is how many node.
+-  snapshot is stored the node itself, **cassandra-CQL-exporter** back up is stored on the backup client itself --> more isolated backup environment.
 
 Generated script contains 2 component:
 - DDL: include keyspace CREATE statement, all tables, indexs, materialized views, function, aggregate function, user defined type.
