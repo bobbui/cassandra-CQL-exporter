@@ -83,6 +83,6 @@ $cql-export -h lcoalhost-po 9043 -k cycling
 $cql-export -h lcoalhost-po 9043  -k keyspace_name -noddl
 ```
 ## TODO
-TODO: optimized jar size.
+TODO: optimized jar size.  
 ##License
  Apache 2.0 License
