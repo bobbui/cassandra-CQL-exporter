@@ -10,12 +10,19 @@
 package net.thangbui.cql_exporter;
 
 import org.apache.commons.cli.*;
+import org.apache.commons.io.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 /**
  * Created by Bui Nguyen Thang on 5/27/2016.
  */
 public class Main {
     public static final String LINE_SEPARATOR = System.getProperty("line.separator");
+    private static final String KEYSPACE_SEPARATOR = ",";
     public static boolean VERBOSE;
 
     public static void main(String[] args) throws Exception {
@@ -79,7 +86,12 @@ public class Main {
             builder.password(cmd.getOptionValue("pass"));
         }
         if (cmd.hasOption("keyspace")) {
-            builder.keyspace(cmd.getOptionValue("keyspace"));
+            String keyspaces = cmd.getOptionValue("keyspace");
+            builder.keyspaces(keyspaces.split(KEYSPACE_SEPARATOR));
+        }
+        if (cmd.hasOption("keyspacesFile")) {
+            String keyspacesFile = cmd.getOptionValue("keyspacesFile");
+            builder.keyspaces(readKeyspacesFromFile(keyspacesFile));
         }
         if (cmd.hasOption("file")) {
             builder.file(cmd.getOptionValue("file"));
@@ -111,6 +123,21 @@ public class Main {
         if (!test)
             System.exit(0);
         return;
+    }
+
+    private static String[] readKeyspacesFromFile(String keyspacesFile) throws IOException {
+        try {
+            File file = new File(keyspacesFile);
+            if (!file.exists()) {
+                System.err.println("KeyspacesFile: " + keyspacesFile + " does not exist!");
+                System.exit(-1);
+            }
+            List<String> strings = FileUtils.readLines(file, StandardCharsets.UTF_8);
+            return strings.toArray(new String[]{});
+        } catch (IOException e) {
+            System.err.println("Could not parse keyspacesFile: " + keyspacesFile + " : " + e.getMessage());
+            throw e;
+        }
     }
 
 }

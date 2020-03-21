@@ -25,7 +25,7 @@ I'm using this on a daily basis. But anyways, use this at **YOUR OWN RISK**!
 ```
 usage: cql-export [--drop] [-f <file name>] [-fo] [-h <host>] [--help] [-k <keyspace>] [-l] [-m]
        [--noddl] [--nodml] [-p <password>] [-po <port>] [-s] [-t <table>] [--test] [--truncate] [-u
-       <username>] [-v]
+       <username>] [-v] [--secure]
     --drop                  add DROP KEYSPACE statement. BE CAREFUL! THIS WILL WIPED OUT ENTIRE
                             KEYSPACE
  -f,--file <file name>      exported file path. default to "<keyspace>.CQL" or
@@ -33,7 +33,9 @@ usage: cql-export [--drop] [-f <file name>] [-fo] [-h <host>] [--help] [-k <keys
  -fo,--force                force overwrite of existing file
  -h,--host <host>           server host name or IP of database server, default is "localhost"
     --help                  print this help message
- -k,--keyspace <keyspace>   database keyspace to be exported
+ -k,--keyspace <keyspace>   database keyspace to be exported. 
+  or  <keyspace1,keyspace2> It allows to specify multiple keyspaces separated with comma. e.g. -k keyspace1,keyspace2
+ -kf,--keyspacesFile        Allows to specify file which contains keyspaces you'd like to export, separated by new line                   
  -l,--license               Print this software license
  -m,--merge                 merge table data, insert will be generated with "IF NOT EXISTS"
     --noddl                 don't generate DDL statements (CREATE TABLE, INDEX, MATERIALIZED VIEW,
@@ -48,6 +50,8 @@ usage: cql-export [--drop] [-f <file name>] [-fo] [-h <host>] [--help] [-k <keys
     --truncate              add TRUNCATE TABLE statement. BE CAREFUL!
  -u,--user <username>       database username
  -v,--verbose               print verbose message
+    --secure                connect via SSL, -Djavax.net.ssl.trustStore=... -Djavax.net.ssl.trustStorePassword=... 
+                            must be added to JAVA_OPTS environment variable
 ```
 
 ##Sample usage
@@ -76,13 +80,41 @@ usage: cql-export [--drop] [-f <file name>] [-fo] [-h <host>] [--help] [-k <keys
 
 2. Simple usage:
 ```
-$cql-export -h lcoalhost-po 9043 -k cycling
+$cql-export -h localhost-po 9043 -k cycling
 ```
 3. Generate only DDL statement 
 ```
-$cql-export -h lcoalhost-po 9043  -k keyspace_name -noddl
+$cql-export -h localhost-po 9043  -k keyspace_name -noddl
 ```
 ## TODO
 TODO: optimized jar size.  
 ## License
  Apache 2.0 License
+
+## Using gradle
+
+### Run
+```
+./gradlew 
+```
+or (Windows:)
+```
+gradlew.bat
+```
+
+### Build jar file
+
+```
+./gradlew jar
+```
+or (Windows:)
+```
+gradlew.bat jar
+```
+
+this places the jar file into the "dist" folder
+
+
+## Change log
+version 1.1 with gradle script and possibility to specify multiple keyspaces to export 
+contributed by matto3c https://www.codegravity.com

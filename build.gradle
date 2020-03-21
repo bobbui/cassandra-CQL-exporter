@@ -1,0 +1,65 @@
+
+buildscript {
+    repositories {
+        mavenLocal()
+        jcenter()
+    }
+    dependencies {
+    }
+}
+
+plugins {
+    id 'application'
+}
+
+sourceCompatibility=1.8
+targetCompatibility=1.8
+
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'idea'
+
+group = 'net.thangbui.cql_exporter'
+
+version = '1.1'
+description = ''
+
+sourceSets {
+    main.java.srcDirs = ['source/src/main/java']
+    main.resources.srcDirs = ['source/src/main/resources']
+}
+
+configurations {
+    providedRuntime
+}
+
+repositories {
+    mavenLocal()
+    jcenter()
+}
+
+defaultTasks('run')
+
+dependencies {
+    compile group: 'commons-cli', name: 'commons-cli', version: '1.4'
+    compile group: 'commons-io', name: 'commons-io', version: '2.6'
+    compile group: 'com.google.guava', name: 'guava', version: 'r05'
+    compile group: 'com.datastax.cassandra', name: 'cassandra-driver-core', version: '3.8.0'
+}
+
+mainClassName = 'net.thangbui.cql_exporter.Main'
+
+
+jar {
+    manifest {
+        attributes('Main-Class': mainClassName)
+    }
+
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
+    destinationDir = file("dist")
+
+}
+

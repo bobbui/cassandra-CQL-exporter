@@ -27,6 +27,10 @@ import java.util.concurrent.TimeUnit;
  * Created by Bui Nguyen Thang on 6/3/2016.
  */
 public class SchemaExporter {
+
+    private static final int CONNECT_TIMEOUT_MILLIS = 100000;
+    private static final int READ_TIMEOUT_MILLIS = 150000;
+
     public static int FETCH_SIZE;
     public static final int NO_OF_ENTRY_BOUND = 10000;
 
@@ -34,7 +38,7 @@ public class SchemaExporter {
     private int    port;
     private String username;
     private String password;
-    private String keyspaceName;
+    private String[] keyspaceNames;
     private String filePath;
     private String tableName;
 
@@ -59,7 +63,23 @@ public class SchemaExporter {
     public void run() throws Exception {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
-        KeyspaceMetadata keyspace = validate();
+        Cluster cluster = connect();
+        for (String keyspaceName : keyspaceNames) {
+            exportKeyspace(cluster, keyspaceName);
+        }
+
+        cluster.close();
+        stopwatch.stop();
+
+        System.out.printf("Export completed after %s s!" + Main.LINE_SEPARATOR, (float) stopwatch.elapsed(TimeUnit.MILLISECONDS) / 1000);
+        System.out.println("Exited.");
+    }
+
+    private void exportKeyspace(Cluster cluster, String keyspaceName) throws Exception {
+
+        filePath = keyspaceName + ".CQL";
+
+        KeyspaceMetadata keyspace = validate(cluster, keyspaceName);
 
         System.out.println("All good!");
         System.out.println("Start exporting...");
@@ -77,9 +97,7 @@ public class SchemaExporter {
             extractOnlyOneTable(keyspace);
         }
 
-        stopwatch.stop();
-        System.out.printf("Export completed after %s s!" + Main.LINE_SEPARATOR, (float) stopwatch.elapsed(TimeUnit.MILLISECONDS) / 1000);
-        System.out.println("Exited.");
+        session.close();
     }
 
     private void extractOnlyOneTable(KeyspaceMetadata keyspace) throws Exception {
@@ -88,7 +106,7 @@ public class SchemaExporter {
         if (!noddl) {
             System.out.println("Write \"" + tableName + "\" DDL to " + file.getCanonicalPath());
             Files.asCharSink(file, Charset.defaultCharset(), FileWriteMode.APPEND)
-                 .write(TableExporter.genDDL(keyspace.getTable(tableName)));
+                    .write(TableExporter.genDDL(keyspace.getTable(tableName)));
         }
         if (!nodml) {
             TableExporter.genDML(this, keyspace.getTable(tableName), file);
@@ -132,38 +150,19 @@ public class SchemaExporter {
         }
     }
 
-    private KeyspaceMetadata validate() {
-        Cluster.Builder builder = Cluster.builder();
-
-        System.out.printf("Trying connect to host \"%s\"" + Main.LINE_SEPARATOR, host);
-        DatabaseValidator.validateHost(host, builder);
-        System.out.println("Success!");
-
-        //FIXME: check username and password
-        builder.withPort(port)
-               .withoutJMXReporting()
-               .withoutMetrics()
-               .withCredentials(username, password)
-               .withReconnectionPolicy(new ConstantReconnectionPolicy(2000));
-
-        if (secure)
-            builder.withSSL();
-
-        System.out.printf("Trying connect to port \"%s\" " + Main.LINE_SEPARATOR, port);
-        Cluster cluster = DatabaseValidator.validateDatabasePort(host, port, username, password, builder);
-        System.out.println("Success!");
+    private KeyspaceMetadata validate(Cluster cluster, String keyspaceName) {
 
         if (Main.VERBOSE) {
             QueryLogger queryLogger = QueryLogger.builder()
-                                                 .withConstantThreshold(1)
-                                                 .withMaxQueryStringLength(QueryLogger.DEFAULT_MAX_QUERY_STRING_LENGTH)
-                                                 .build();
+                    .withConstantThreshold(1)
+                    .withMaxQueryStringLength(QueryLogger.DEFAULT_MAX_QUERY_STRING_LENGTH)
+                    .build();
             cluster.register(queryLogger);
         }
 
         SocketOptions socketOptions = cluster.getConfiguration().getSocketOptions();
-        socketOptions.setConnectTimeoutMillis(10000);
-        socketOptions.setReadTimeoutMillis(15000);
+        socketOptions.setConnectTimeoutMillis(CONNECT_TIMEOUT_MILLIS);
+        socketOptions.setReadTimeoutMillis(READ_TIMEOUT_MILLIS);
         socketOptions.setKeepAlive(true);
 
         System.out.printf("Trying connect to keyspace \"%s\"" + Main.LINE_SEPARATOR, keyspaceName);
@@ -180,10 +179,33 @@ public class SchemaExporter {
         return keyspace;
     }
 
+    private Cluster connect() {
+        Cluster.Builder builder = Cluster.builder();
+
+        System.out.printf("Trying connect to host \"%s\"" + Main.LINE_SEPARATOR, host);
+        DatabaseValidator.validateHost(host, builder);
+        System.out.println("Success!");
+
+        //FIXME: check username and password
+        builder.withPort(port)
+                .withoutJMXReporting()
+                .withoutMetrics()
+                .withCredentials(username, password)
+                .withReconnectionPolicy(new ConstantReconnectionPolicy(2000));
+
+        if (secure)
+            builder.withSSL();
+
+        System.out.printf("Trying connect to port \"%s\" " + Main.LINE_SEPARATOR, port);
+        Cluster cluster = DatabaseValidator.validateDatabasePort(host, port, username, password, builder);
+        System.out.println("Success!");
+        return cluster;
+    }
+
     private List<String> genDDL(KeyspaceMetadata keyspace) {
         List<String> statements = new ArrayList();
         if (dropKeyspace) {
-            statements.add("DROP KEYSPACE IF EXISTS " + keyspaceName);
+            statements.add("DROP KEYSPACE IF EXISTS " + keyspace);
         }
         statements.add(keyspace.exportAsString());
         return statements;
@@ -202,7 +224,7 @@ public class SchemaExporter {
         private String port;
         private String username = "";
         private String password = "";
-        private String  keyspaceName;
+        private String[] keyspaceNames;
         private String  tableName;
         private String  filePath;
         private boolean noddl;
@@ -242,8 +264,8 @@ public class SchemaExporter {
             return this;
         }
 
-        public Builder keyspace(String keyspaceName) {
-            this.keyspaceName = keyspaceName;
+        public Builder keyspaces(String[] keyspaceNames) {
+            this.keyspaceNames = keyspaceNames;
             return this;
         }
 
@@ -304,17 +326,15 @@ public class SchemaExporter {
                     throw new IllegalArgumentException("port can not be zero or negative");
             }
 
-            if (Strings.isNullOrEmpty(keyspaceName))
-                throw new IllegalArgumentException("keyspace name can not be empty");
-
-            if (Strings.isNullOrEmpty(filePath)) filePath = keyspaceName + ".CQL";
+            if (keyspaceNames == null || keyspaceNames.length <= 0)
+                throw new IllegalArgumentException("keyspaces name can not be empty");
 
             SchemaExporter schemaExporter = new SchemaExporter();
             schemaExporter.host = host;
             schemaExporter.port = portNo;
             schemaExporter.username = username;
             schemaExporter.password = password;
-            schemaExporter.keyspaceName = keyspaceName;
+            schemaExporter.keyspaceNames = keyspaceNames;
             schemaExporter.filePath = filePath;
             schemaExporter.tableName = tableName;
 
