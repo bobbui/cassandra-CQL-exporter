@@ -79,9 +79,18 @@ public class OptionsBuilder {
                                       .argName("keyspace")
                                       .longOpt("keyspace")
                                       .hasArg()
-                                      .desc("database keyspace to be exported")
+                                      .desc("database keyspace to be exported. It allows to specify multiple keyspaces separated with comma. e.g. -k keyspace1,keyspace2")
                                       .build();
         options.addOption(keyspaceOption);
+
+        Option keyspacesFile = Option.builder("kf")
+                .argName("keyspacesFile")
+                .longOpt("keyspacesFile")
+                .hasArg()
+                .desc("Allows to specify file which contains keyspaces you'd like to export, separated by new line.")
+                .build();
+        options.addOption(keyspacesFile);
+
 
         Option tableOption = Option.builder("t")
                                    .longOpt("table")

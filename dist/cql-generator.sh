@@ -5,4 +5,4 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 # http://www.apache.org/licenses/LICENSE-2.0
-java -jar cql-generator.1.0.jar "$@"
+java $JAVA_OPTS -jar cql-generator-1.1.jar "$@"
