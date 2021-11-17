@@ -1,5 +1,5 @@
 ## Summary
-An alternative utility to **nodetool snapshot**  to export whole [Apache Cassandra](http://cassandra.apache.org/) keyspace/table structure and data to Cassandra Query Language (CQL) scripts. CQL scripts is a lightweight,simple way to restore and backupAn .
+An alternative utility to **nodetool snapshot**  to export whole [Apache Cassandra](http://cassandra.apache.org/) keyspace/table structure and data to Cassandra Query Language (CQL) scripts. CQL scripts is a lightweight,simple way to restore and backup databases.
 
 Features:
 -  simple and configurable, see usage for detail.
